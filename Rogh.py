@@ -1,16 +1,15 @@
 from tabulate import tabulate
-import random
 import math
 
 class MyVacummEnvironment:
     def __init__(instance):
         # Initializes the environment with a grid size and sets the initial state
-        instance.size = instance.get_Nsize()  # Size of the grid determined by user input
+        instance.size = instance.getNsize()  # Size of the grid determined by user input
         instance.grid = [['Clean' for _ in range(instance.size)] for _ in range(instance.size)]  # Initializes all cells as 'Clean'
-        instance.add_Waste()  # Adds waste to specified locations
-        instance.set_cleaner_start_position()  # Sets the starting position of the cleaner
+        instance.AddWaste()  # Adds waste to specified locations
+        instance.SetCleanerStartPosition()  # Sets the starting position of the cleaner
 
-    def get_Nsize(instance):
+    def getNsize(instance):
         # Asks the user to input the size of the grid and ensures it is within an acceptable range
         while True:
             try:
@@ -22,11 +21,11 @@ class MyVacummEnvironment:
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
 
-    def add_Waste(instance):
+    def AddWaste(instance):
         # Prompts user for waste locations and adds them to the grid
         while True:
             try:
-                waste_locations = input("\nEnter the waste locations as coordinates separated by space (e.g., '1,1 2,1 3,2'): ")
+                waste_locations = input("\nEnter the waste locations as coordinates separated by space (e.g. 1,1 2,1 3,1): ")
                 waste_locations = [tuple(map(int, coord.split(','))) for coord in waste_locations.split()]
                 if all(0 < x <= instance.size and 0 < y <= instance.size for x, y in waste_locations):
                     break
@@ -38,11 +37,11 @@ class MyVacummEnvironment:
         for x, y in waste_locations:
             instance.grid[x-1][y-1] = 'Waste'  # Marks specified locations as 'Waste'
 
-    def set_cleaner_start_position(instance):
+    def SetCleanerStartPosition(instance):
         # Sets the cleaner's initial position based on user input
         while True:
             try:
-                start_pos = input("\nEnter the cleaner's start position as coordinates (e.g., '1,1'): ")
+                start_pos = input("\nEnter the cleaner's start position as coordinates (e.g., 2,1): ")
                 start_pos = tuple(map(int, start_pos.split(',')))
                 if 0 < start_pos[0] <= instance.size and 0 < start_pos[1] <= instance.size:
                     instance.cleaner_location = (start_pos[0] - 1, start_pos[1] - 1)
@@ -57,7 +56,7 @@ class MyVacummEnvironment:
         table = [[f"({i+1},{j+1})\n{instance.grid[i][j]}" + (f'\nVacuum' if (i, j) == instance.cleaner_location else '') for j in range(instance.size)] for i in range(instance.size)]
         print(tabulate(table, tablefmt="grid"))
 
-    def find_nearest_waste(instance):
+    def FindNearestWaste(instance):
         # Calculates the nearest waste location to the cleaner using Manhattan distance
         x, y = instance.cleaner_location
         nearest_waste = None
@@ -71,22 +70,23 @@ class MyVacummEnvironment:
                         nearest_waste = (i, j)
         return nearest_waste
 
-    def cleaner_action(instance):
-        # Determines the next action for the cleaner: clean or move towards the nearest waste
+    def VacummActions(instance):
+    # Determines the next action for the cleaner: clean or move towards the nearest waste
         x, y = instance.cleaner_location
         if instance.grid[x][y] == 'Waste':
             return 'clean'
         else:
-            nearest_waste = instance.find_nearest_waste()
+            nearest_waste = instance.FindNearestWaste()
             if nearest_waste is None:
                 return None  # No action if no waste is found
-            nx, ny = nearest_waste
-            if nx < x: return 'up'
-            if nx > x: return 'down'
-            if ny < y: return 'left'
-            if ny > y: return 'right'
+            NearestX, NearestY = nearest_waste
+            if NearestX < x: return 'up'
+            if NearestX > x: return 'down'
+            if NearestY < y: return 'left'
+            if NearestY > y: return 'right'
 
-    def apply_action(instance, action):
+
+    def ResultofVacummActions(instance, action):
         # Applies the specified action and moves the cleaner or cleans the current location
         x, y = instance.cleaner_location
         if action == 'clean':
@@ -113,12 +113,13 @@ class MyVacummEnvironment:
         # Initiates the cleaning process and continues until the goal state is reached
         steps = 0
         while not instance.ISaGoalState():
-            action = instance.cleaner_action()
+            action = instance.VacummActions()
             if action:
-                instance.apply_action(action)
+                instance.ResultofVacummActions(action)
                 steps += 1
             instance.DisplayMyVacummEnvironment()  # To visualize the process
         print(f"\nCleaning completed in {steps} steps.")
+        print("Thanks For Using Our Sustainable Vacumm Cleaner.")
 
 # Runing the environment
 env = MyVacummEnvironment()
